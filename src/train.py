@@ -28,10 +28,11 @@ def evaluate(model, X, y):
 
 
 def train_eval_loop(
-    model,
+    model: nn.Module,
     data: Dataset,
     epochs=500,
     optimizer_lr=0.003,
+    test_ratio=0.2,
     verbose=False,
     save_max=10,
     return_losses=False,
@@ -39,7 +40,7 @@ def train_eval_loop(
 ):
     model.to(DEVICE)
     train_x, train_y, test_x, test_y = data.train_test_split(
-        datatype="torch", device=DEVICE
+        test_ratio=test_ratio, datatype="torch", device=DEVICE
     )
     optimizer = optim.Adam(model.parameters(), lr=optimizer_lr)
     criterion = nn.CrossEntropyLoss()

@@ -1,5 +1,4 @@
 import numpy as np
-from dataclasses import dataclass
 from typing import Tuple
 from sklearn import datasets
 from plottings import scatterplot
@@ -7,7 +6,6 @@ from sklearn import preprocessing
 import torch
 
 
-@dataclass
 class Dataset:
     """
     A class to represent a dataset.
@@ -20,13 +18,16 @@ class Dataset:
     y: np.ndarray
     """
 
-    X: np.ndarray
-    y: np.ndarray
+    def __init__(self, X: np.ndarray, y: np.ndarray, name=""):
+        self.X = X
+        self.y = y
+        self.name = name
+        self.size = self.X.shape[0]
+        self.dim = self.X.shape[1]
 
     def train_test_split(
         self, test_ratio=0.2, val=False, val_ratio=0.2, datatype="numpy", device=None
     ):
-        size = self.y.shape[0]
         if datatype == "numpy":
             data = np.hstack([self.X, self.Y.reshape(-1, 1)])
             np.random.shuffle(data)
@@ -35,24 +36,39 @@ class Dataset:
             if device:
                 data.to(device)
             torch.random.shuffle(data)
-        test_thres = int(size * test_ratio)
+        test_thres = int(self.size * test_ratio)
         test_x, test_y = data[test_thres:, :-1], data[test_thres:, -1]
         train_x, train_y = data[:-test_thres, :-1], data[:-test_thres, -1]
 
         if val:
-            val_thres = int(size * val_ratio)
+            val_thres = int(self.size * val_ratio)
             val_x, val_y = train_x[val_thres:, :], train_y[val_thres:, :]
             train_x, train_y = train_x[:-val_thres, :], train_y[:-val_thres, :]
             return train_x, train_y, val_x, val_y, test_x, test_y
 
         return train_x, train_y, test_x, test_y
 
+    def plot_data(self):
+        if self.dim == 2:
+            return scatterplot(
+                x_coords=self.X[:, 0], y_coords=self.X[:, 1], color=self.y, save=True
+            )
+        if self.dim == 3:
+            return scatterplot(
+                x_coords=self.X[:, 0],
+                y_coords=self.X[:, 1],
+                z_coords=self.X[:, 2],
+                dim=3,
+                color=self.y,
+                save=True,
+            )
+
 
 class Circles(Dataset):
     def __init__(self, n_samples=2000, n_circles_per_class=1):
         self.n_samples = n_samples
         self.n_circles_per_class = n_circles_per_class
-        super().__init__(*self.__generate_data())
+        super().__init__(*self.__generate_data(), name="circles")
 
     def __generate_data(self):
         data = datasets.make_circles(n_samples=self.n_samples)
@@ -77,7 +93,7 @@ class Tori(Dataset):
         self.radius = radius
         self.visual = visual
         self.range = rng
-        super().__init__(*self.__generate_data())
+        super().__init__(*self.__generate_data(), name="tori")
 
     def __draw_circle(self, r, center, n, rand=True):
         angles = np.linspace(start=0, stop=n, num=n) * (np.pi * 2) / n
@@ -208,8 +224,8 @@ class Tori(Dataset):
 
 def main():
     tori = Tori()
-    X, y = tori.X, tori.y
-    fig = scatterplot(X[:, 0], X[:, 1], y, save=True, name="test.png")
+    print(tori.name, tori.size, tori.dim)
+    tori.plot_data()
 
 
 if __name__ == "__main__":
