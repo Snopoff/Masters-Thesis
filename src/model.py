@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-import torch.functional as F
+import torch.nn.functional as F
 
 
 class split_tanh(nn.Module):
@@ -13,7 +13,7 @@ class split_tanh(nn.Module):
         super(split_tanh, self).__init__()
         self.c = torch.nn.parameter.Parameter(torch.rand(1))
         self.a = torch.nn.parameter.Parameter(torch.randn(1))
-        self.lamb = torch.nn.parameter.Parameter(torch.Tensor[10.0])
+        self.lamb = torch.nn.parameter.Parameter(torch.Tensor([1.0]))
 
     def forward(self, x):
         return x + self.c * torch.tanh(self.lamb * (x - self.a))
@@ -65,7 +65,7 @@ class Classifier1L(nn.Module):
         activation="split_tanh",
         batch_norm=False,
         initialize_weights=True,
-        save_snapshots=False,
+        save_snapshots=True,
     ):
         """
         layers_signature = (dim_of_in, num_of_hidden, dim_of_hidden, is_with_split, split_constant)
@@ -73,9 +73,9 @@ class Classifier1L(nn.Module):
         super().__init__()
 
         self.activations = {
-            "split_tanh": split_tanh,
-            "split_sign": split_sign,
-            "split_sincos": split_sincos,
+            "split_tanh": split_tanh(),
+            "split_sign": split_sign(),
+            "split_sincos": split_sincos(),
             "relu": F.relu,
         }
 
@@ -86,15 +86,16 @@ class Classifier1L(nn.Module):
         )
         self.fc_out = nn.Linear(dim_of_hidden, 2)
 
-        self.activation = self.activations[activation]
+        self.activation_name = activation
+        self.activation = self.activations[self.activation_name]
 
         if initialize_weights:
-            self.apply(self.__initialize_weights, activation)
+            self.apply(self.__initialize_weights)
 
         if save_snapshots:
             self.snapshots = []
 
-    def forward(self, x, save):
+    def forward(self, x, save=False):
         x = self.fc_in(x)
         if self.norm:
             x = self.norm(x)
@@ -112,9 +113,9 @@ class Classifier1L(nn.Module):
 
         return x
 
-    def __initialize_weights(self, module, activation):
+    def __initialize_weights(self, module):
         if isinstance(module, nn.Linear):
-            if activation != "relu":
+            if self.activation_name != "relu":
                 torch.nn.init.xavier_uniform_(module.weight)
             else:
                 torch.nn.init.xavier_normal_(module.weight)

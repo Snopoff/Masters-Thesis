@@ -28,14 +28,12 @@ class Dataset:
     def train_test_split(
         self, test_ratio=0.2, val=False, val_ratio=0.2, datatype="numpy", device=None
     ):
-        if datatype == "numpy":
-            data = np.hstack([self.X, self.Y.reshape(-1, 1)])
-            np.random.shuffle(data)
+        data = np.hstack([self.X, self.y.reshape(-1, 1)])
+        np.random.shuffle(data)
         if datatype == "torch":
-            data = torch.hstack([self.X, self.Y.reshape(-1, 1)])
+            data = torch.Tensor(data)
             if device:
-                data.to(device)
-            torch.random.shuffle(data)
+                data = data.to(device)
         test_thres = int(self.size * test_ratio)
         test_x, test_y = data[test_thres:, :-1], data[test_thres:, -1]
         train_x, train_y = data[:-test_thres, :-1], data[:-test_thres, -1]
@@ -78,7 +76,7 @@ class Circles(Dataset):
 class Tori(Dataset):
     def __init__(
         self,
-        samples=15000,
+        samples=150,
         shapeParam1=15,
         shapeParam2=2.5,
         shapeParam3=2.2,

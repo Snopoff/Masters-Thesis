@@ -20,7 +20,7 @@ def train(model, X, y, optimizer, criterion, save=False):
 
 def evaluate(model, X, y):
     model.eval()
-    logits = model(X, y)
+    logits = model(X)
     _, top_class = logits.topk(1, dim=1)
     equals = top_class == y.view(*top_class.shape)
     acc = torch.mean(equals.type(torch.FloatTensor))
@@ -42,6 +42,9 @@ def train_eval_loop(
     train_x, train_y, test_x, test_y = data.train_test_split(
         test_ratio=test_ratio, datatype="torch", device=DEVICE
     )
+    train_y, test_y = train_y.type(torch.LongTensor).to(DEVICE), test_y.type(
+        torch.LongTensor
+    ).to(DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=optimizer_lr)
     criterion = nn.CrossEntropyLoss()
 

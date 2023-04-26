@@ -35,7 +35,7 @@ def run_experiment(
     if verbose:
         print(
             "Dataset is {}\tLayers signature is {}".format(
-                dataset.name, model.layers_signature
+                dataset.name, (num_of_hidden, dim_of_hidden, activation)
             )
         )
 
@@ -98,7 +98,9 @@ def plot_results(
 ):
     x_range = range(epochs)
     num_dims = len(dim_of_hidden_layers)
-    for key, value in datasets_names.items():
+    xlabels = ["epochs"] * num_dims
+    num_layers = len(num_of_hidden_layers)
+    for key, value in enumerate(datasets_names):
         data_train = [
             train_info[i] for i in range(len(train_info)) if train_info[i][0][0] == key
         ]
@@ -111,6 +113,7 @@ def plot_results(
             y_ranges = [None] * num_dims
             stds = [None] * num_dims
             labels = [None] * num_dims
+            titles = [None] * num_dims
             for i, dim in enumerate(dim_of_hidden_layers):
                 data_for_given_dim = [
                     data_for_given_layer[i]
@@ -122,25 +125,37 @@ def plot_results(
                     "train loss w/" + data[0][-1] for data in data_for_given_dim
                 ]
                 stds[i] = [data[2] for data in data_for_given_dim]
-                title = "Dimension of hidden layers={}".format(dim)
+                titles[i] = "Dimension of hidden layers={}".format(dim)
+            fig_title = "Dataset {}; № of layers = {}".format(value, hid_layer)
             plot_lines(
                 x_range,
                 y_ranges,
                 stds=stds,
                 labels=labels,
-                title=title,
+                titles=titles,
+                fig_title=fig_title,
+                xlabels=xlabels,
                 share_x_range=True,
+                save=True,
+                filename=fig_title,
+                ncols=4,
+                nrows=1 + num_layers // 4,
+                figsize=(15, 10),
             )
 
 
 def run_experiments(
     datasets,
-    n_experiments=10,
-    num_of_hidden_layers=range(1, 7, 2),
-    dim_of_hidden_layers=range(3, 11),
-    list_of_activations=["split_tanh", "split_sign", "split_sincos", "relu"],
+    n_experiments=2,
+    num_of_hidden_layers=range(1, 5, 2),
+    dim_of_hidden_layers=range(3, 4),
+    list_of_activations=[
+        "split_tanh",
+        "split_sign",
+        "relu",
+    ],  # ["split_tanh", "split_sign", "split_sincos", "relu"],
     epochs=500,
-    verbose=False,
+    verbose=True,
 ):
     train_info, test_info = [], []
     for i, dataset in enumerate(datasets):
@@ -178,6 +193,7 @@ def run_experiments(
                     )
 
     datasets_names = [dataset.name for dataset in datasets]
+    print("Plotting the results ...")
     plot_results(
         train_info=train_info,
         test_info=test_info,
@@ -191,4 +207,4 @@ def run_experiments(
 if __name__ == "__main__":
     circles, tori = Circles(), Tori()
     datasets = [circles, tori]
-    run_experiments()
+    run_experiments(datasets)
