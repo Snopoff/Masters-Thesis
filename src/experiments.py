@@ -126,7 +126,7 @@ def plot_results(
                 ]
                 stds[i] = [data[2] for data in data_for_given_dim]
                 titles[i] = "Dimension of hidden layers={}".format(dim)
-            fig_title = "Dataset {}; № of layers = {}".format(value, hid_layer)
+            fig_title = "images/Dataset {}; № of layers = {}".format(value, hid_layer)
             plot_lines(
                 x_range,
                 y_ranges,

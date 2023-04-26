@@ -9,7 +9,7 @@ def scatterplot(
     dim=2,
     engine="matplotlib",
     save=False,
-    name="test.png",
+    name="images/test.png",
 ):
     if engine == "matplotlib":
         if dim == 2:
@@ -23,6 +23,14 @@ def scatterplot(
     if save:
         fig.savefig(name)
     return fig
+
+
+def plot_line(x_range, y_range, label=None, title=None, save=False, filename=None):
+    fig, ax = plt.subplot()
+    ax.plot(x_range, y_range, label=label)
+    fig.suptitle(title)
+    if save:
+        fig.savefig(filename)
 
 
 def plot_lines(

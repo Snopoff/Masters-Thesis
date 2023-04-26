@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
+from plottings import plot_line
 
 
 class split_tanh(nn.Module):
@@ -9,11 +10,11 @@ class split_tanh(nn.Module):
     x \mapsto x + c * tanh(\lamb * (x - a))
     """
 
-    def __init__(self):
+    def __init__(self, lamb=1.0):
         super(split_tanh, self).__init__()
         self.c = torch.nn.parameter.Parameter(torch.rand(1))
         self.a = torch.nn.parameter.Parameter(torch.randn(1))
-        self.lamb = torch.nn.parameter.Parameter(torch.Tensor([1.0]))
+        self.lamb = torch.nn.parameter.Parameter(torch.Tensor([lamb]))
 
     def forward(self, x):
         return x + self.c * torch.tanh(self.lamb * (x - self.a))
@@ -54,6 +55,17 @@ class split_sincos(nn.Module):
         if x > cosa:
             return x * tga
         return x + sina - cosa
+
+
+def __torch_vectorize(f, inplace=False):
+    def wrapper(tensor):
+        out = tensor if inplace else tensor.clone()
+        view = out.flatten()
+        for i, x in enumerate(view):
+            view[i] = f(x)
+        return out
+
+    return wrapper
 
 
 class Classifier1L(nn.Module):
@@ -121,3 +133,14 @@ class Classifier1L(nn.Module):
                 torch.nn.init.xavier_normal_(module.weight)
             if module.bias is not None:
                 module.bias.data.zero_()
+
+
+def main():
+    x_range = torch.linspace(-3, 3, 50)
+    func = split_sincos()
+    y_range = func(x_range)
+    plot_line(x_range, y_range, save=True, filename="sincos.png")
+
+
+if __name__ == "__main__":
+    main()
