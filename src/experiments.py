@@ -152,8 +152,9 @@ def run_experiments(
     list_of_activations=[
         "split_tanh",
         "split_sign",
+        "split_sincos",
         "relu",
-    ],  # ["split_tanh", "split_sign", "split_sincos", "relu"],
+    ],
     epochs=500,
     verbose=True,
 ):

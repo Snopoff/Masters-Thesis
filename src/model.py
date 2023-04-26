@@ -50,22 +50,18 @@ class split_sincos(nn.Module):
         sina = torch.sin(self.a)
         tga = torch.tan(self.a)
 
-        if x < -cosa:
-            return self.b * x + self.b * cosa - sina
-        if x > cosa:
-            return x * tga
-        return x + sina - cosa
+        res = torch.zeros_like(x)
 
+        idx1 = x < -cosa
+        res[idx1] = self.b * x[idx1] + self.b * cosa - sina
 
-def __torch_vectorize(f, inplace=False):
-    def wrapper(tensor):
-        out = tensor if inplace else tensor.clone()
-        view = out.flatten()
-        for i, x in enumerate(view):
-            view[i] = f(x)
-        return out
+        idx2 = (-cosa <= x) & (x < cosa)
+        res[idx2] = x[idx2] + sina - cosa
 
-    return wrapper
+        idx3 = x >= cosa
+        res[idx3] = x[idx3] * tga
+
+        return res
 
 
 class Classifier1L(nn.Module):
@@ -138,7 +134,7 @@ class Classifier1L(nn.Module):
 def main():
     x_range = torch.linspace(-3, 3, 50)
     func = split_sincos()
-    y_range = func(x_range)
+    y_range = func(x_range).detach().numpy()
     plot_line(x_range, y_range, save=True, filename="sincos.png")
 
 

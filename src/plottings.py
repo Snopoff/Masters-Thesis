@@ -14,7 +14,7 @@ def scatterplot(
     if engine == "matplotlib":
         if dim == 2:
             fig = plt.figure()
-            ax = fig.add_subplot(projection="2d")
+            ax = fig.add_subplot()
             ax.scatter(x_coords, y_coords, c=color)
         if dim == 3:
             fig = plt.figure()
@@ -26,7 +26,8 @@ def scatterplot(
 
 
 def plot_line(x_range, y_range, label=None, title=None, save=False, filename=None):
-    fig, ax = plt.subplot()
+    fig = plt.figure()
+    ax = fig.add_subplot()
     ax.plot(x_range, y_range, label=label)
     fig.suptitle(title)
     if save:
