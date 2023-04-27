@@ -1,7 +1,12 @@
 import numpy as np
 
 
-def train_test_split(X, y, val=False, test_ratio=0.2, val_ratio=0.2):
+def train_test_split(
+    X: np.ndarray, y: np.ndarray, val=False, test_ratio=0.2, val_ratio=0.2
+):
+    """
+    Splits the data into train/val/test subsets
+    """
     size = y.shape[0]
 
     data = np.hstack([X[0], y[1].reshape(-1, 1)])
