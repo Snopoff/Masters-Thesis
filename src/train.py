@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch import optim
-from datasets import Dataset
+from .datasets import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
 
