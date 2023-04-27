@@ -1,5 +1,5 @@
 from src.datasets import Circles, Tori
-from src.model import Classifier1L, ClassifierAL
+from src.models import Classifier1L, ClassifierAL
 from src.experiments import ActivationExperiments
 import argparse
 import time

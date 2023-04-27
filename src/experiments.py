@@ -1,5 +1,5 @@
 from .datasets import Dataset, Circles, Tori
-from .model import ClassifierAL
+from .models import ClassifierAL
 from .train import train_eval_loop
 from .plottings import plot_lines
 import numpy as np
