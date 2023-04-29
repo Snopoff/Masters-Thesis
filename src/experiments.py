@@ -193,12 +193,12 @@ class ActivationExperiments:
                         )
         print("Plotting the results ...")
         self.plot_results(
-            data=train_info,
+            results=train_info,
             generic_label="train loss w/",
             dirname=DIRNAME + "activations/train/",
         )
         self.plot_results(
-            data=train_info,
+            results=train_info,
             generic_label="test loss w/",
             dirname=DIRNAME + "activations/test/",
         )
