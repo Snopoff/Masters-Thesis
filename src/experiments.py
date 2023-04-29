@@ -2,11 +2,15 @@ from .datasets import Dataset, Circles, Tori
 from .models import ClassifierAL
 from .train import train_eval_loop
 from .plottings import plot_lines
+from .utils import mkdir_p
+from typing import List
 import numpy as np
 import random
 import torch
 import tqdm
 import time
+
+DIRNAME = "images/"
 
 
 def set_state(random_state):
@@ -20,7 +24,7 @@ class ActivationExperiments:
     def __init__(
         self,
         model,
-        datasets,
+        datasets: List,
         n_experiments=30,
         num_of_hidden_layers=range(1, 10),
         dim_of_hidden_layers=range(3, 11),
@@ -102,16 +106,15 @@ class ActivationExperiments:
         )
         return train_loss_mean, test_loss_mean, train_loss_std, test_loss_std
 
-    def plot_results(self, train_info, test_info):
+    def plot_results(self, results, generic_label="train loss w/", dirname=DIRNAME):
+        mkdir_p(DIRNAME)
         datasets_names = [dataset.name for dataset in self.datasets]
         x_range = range(self.epochs)
         num_dims = len(self.dim_of_hidden_layers)
         xlabels = ["epochs"] * num_dims
         for key, value in enumerate(datasets_names):
             data_train = [
-                train_info[i]
-                for i in range(len(train_info))
-                if train_info[i][0][0] == key
+                results[i] for i in range(len(results)) if results[i][0][0] == key
             ]
             for hid_layer in self.num_of_hidden_layers:
                 data_for_given_layer = [
@@ -131,11 +134,11 @@ class ActivationExperiments:
                     ]
                     y_ranges[i] = [data[1] for data in data_for_given_dim]
                     labels[i] = [
-                        "train loss w/" + data[0][-1] for data in data_for_given_dim
+                        generic_label + data[0][-1] for data in data_for_given_dim
                     ]
                     stds[i] = [data[2] for data in data_for_given_dim]
                     titles[i] = "Dimension of hidden layers={}".format(dim)
-                fig_title = "images/Dataset {}; № of layers = {}".format(
+                fig_title = dirname + "Dataset {}; № of layers = {}".format(
                     value, hid_layer
                 )
                 plot_lines(
@@ -150,7 +153,7 @@ class ActivationExperiments:
                     save=True,
                     filename=fig_title,
                     ncols=4,
-                    nrows=num_dims // 4 + 1,
+                    nrows=num_dims // 4,
                     figsize=(15, 10),
                 )
 
@@ -189,7 +192,16 @@ class ActivationExperiments:
                             )
                         )
         print("Plotting the results ...")
-        self.plot_results(train_info=train_info, test_info=test_info)
+        self.plot_results(
+            data=train_info,
+            generic_label="train loss w/",
+            dirname=DIRNAME + "activations/train/",
+        )
+        self.plot_results(
+            data=train_info,
+            generic_label="test loss w/",
+            dirname=DIRNAME + "activations/test/",
+        )
 
 
 if __name__ == "__main__":

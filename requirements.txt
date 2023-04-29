@@ -3,7 +3,4 @@
 matplotlib==3.7.1
 numpy==1.24.2
 scikit-learn==1.2.1
-# Editable install with no version control (setuptools==67.3.2)
--e /home/snopoff/miniconda3/envs/thesis/lib/python3.10/site-packages/setuptools-67.3.2-py3.11.egg-info
-# Editable install with no version control (torch==1.13.1)
--e /home/snopoff/miniconda3/envs/thesis/lib/python3.10/site-packages/torch-1.13.1-py3.10.egg-info
+torch==1.13.1

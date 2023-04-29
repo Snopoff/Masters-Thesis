@@ -1,26 +1,17 @@
-import numpy as np
+from errno import EEXIST
+from os import makedirs, path
 
 
-def train_test_split(
-    X: np.ndarray, y: np.ndarray, val=False, test_ratio=0.2, val_ratio=0.2
-):
+def mkdir_p(mypath):
     """
-    Splits the data into train/val/test subsets
+    Creates a directory. equivalent to using mkdir -p on the command line
+
+    https://stackoverflow.com/questions/11373610/save-matplotlib-file-to-a-directory
     """
-    size = y.shape[0]
-
-    data = np.hstack([X[0], y[1].reshape(-1, 1)])
-    np.random.shuffle(data)
-
-    if val:
-        thres_test = int(test_ratio * size)
-        thres_val = int(val_ratio * (size - thres_test))
-        train_x, train_y = data[:-thres_test, :-1], data[:-thres_test, -1]
-        test_x, test_y = data[thres_test:, :-1], data[thres_test:, -1]
-
-    else:
-        thres_test = int(test_ratio * size)
-        train_x, train_y = data[:-thres_test, :-1], data[:-thres_test, -1]
-        test_x, test_y = data[thres_test:, :-1], data[thres_test:, -1]
-
-        return train_x, test_x, train_y, test_y
+    try:
+        makedirs(mypath)
+    except OSError as exc:
+        if exc.errno == EEXIST and path.isdir(mypath):
+            pass
+        else:
+            raise
