@@ -26,7 +26,7 @@ class ActivationExperiments:
         model,
         datasets: List,
         n_experiments=30,
-        num_of_hidden_layers=range(1, 10),
+        num_of_hidden_layers=range(1, 11),
         dim_of_hidden_layers=range(3, 11),
         list_of_activations=[
             "split_tanh",

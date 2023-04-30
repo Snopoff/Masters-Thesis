@@ -28,7 +28,7 @@ def main():
         choices=["activation"],
     )
     parser.add_argument(
-        "-l", type=int, default=1, help="num of layers to be used in a model"
+        "--l", type=int, default=1, help="num of layers to be used in a model"
     )
     parser.add_argument(
         "--d",
