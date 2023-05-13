@@ -33,7 +33,7 @@ def main():
     parser.add_argument(
         "--d",
         type=int,
-        default=1,
+        default=4,
         help="dimension of hidden layers to be used in a model",
     )
     parser.add_argument(
@@ -74,7 +74,7 @@ def main():
         datasets=datasets,
         n_experiments=args.ne,
         num_of_hidden_layers=range(1, args.l + 1),
-        dim_of_hidden_layers=(3, args.d + 3),
+        dim_of_hidden_layers=range(3, args.d + 3),
         list_of_activations=args.act,
         verbose=False,
     )

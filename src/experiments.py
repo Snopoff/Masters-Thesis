@@ -107,7 +107,7 @@ class ActivationExperiments:
         return train_loss_mean, test_loss_mean, train_loss_std, test_loss_std
 
     def plot_results(self, results, generic_label="train loss w/", dirname=DIRNAME):
-        mkdir_p(DIRNAME)
+        mkdir_p(dirname)
         datasets_names = [dataset.name for dataset in self.datasets]
         x_range = range(self.epochs)
         num_dims = len(self.dim_of_hidden_layers)
@@ -138,9 +138,8 @@ class ActivationExperiments:
                     ]
                     stds[i] = [data[2] for data in data_for_given_dim]
                     titles[i] = "Dimension of hidden layers={}".format(dim)
-                fig_title = dirname + "Dataset {}; № of layers = {}".format(
-                    value, hid_layer
-                )
+                fig_title = "Dataset {}; № of layers = {}".format(value, hid_layer)
+                filename = dirname + fig_title
                 plot_lines(
                     x_range,
                     y_ranges,
@@ -151,7 +150,7 @@ class ActivationExperiments:
                     xlabels=xlabels,
                     share_x_range=True,
                     save=True,
-                    filename=fig_title,
+                    filename=filename,
                     ncols=4,
                     nrows=num_dims // 4,
                     figsize=(15, 10),
