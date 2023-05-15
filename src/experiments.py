@@ -1,4 +1,4 @@
-from .datasets import Dataset, Circles, Tori
+from .datasets import Dataset, Circles, Tori, Disks
 from .models import ClassifierAL
 from .train import train_eval_loop
 from .plottings import plot_lines
@@ -197,15 +197,15 @@ class ActivationExperiments:
             dirname=DIRNAME + "activations/train/",
         )
         self.plot_results(
-            results=train_info,
+            results=test_info,
             generic_label="test loss w/",
             dirname=DIRNAME + "activations/test/",
         )
 
 
 if __name__ == "__main__":
-    circles, tori = Circles(), Tori()
-    datasets = [circles, tori]
+    circles, tori, disks = Circles(), Tori(), Disks()
+    datasets = [circles, tori, disks]
     experiment = ActivationExperiments(
         model=ClassifierAL,
         datasets=datasets,

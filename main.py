@@ -1,13 +1,10 @@
-from src.datasets import Circles, Tori
+from src.datasets import Circles, Tori, Disks
 from src.models import Classifier1L, ClassifierAL
 from src.experiments import ActivationExperiments
 import argparse
 import time
 
-DATASETS_DICT = {
-    "circles": Circles,
-    "tori": Tori,
-}
+DATASETS_DICT = {"circles": Circles, "tori": Tori, "disks": Disks}
 
 EXPERIMENTS_DICT = {
     "activation": ActivationExperiments,
@@ -40,8 +37,8 @@ def main():
         "--data",
         type=str,
         action="append",
-        default=["circles", "tori"],
-        choices=["circles", "tori"],
+        default=["circles", "tori", "disks"],
+        choices=["circles", "tori", "disks"],
         help="datasets names to be used in the experiment",
     )
     parser.add_argument(
@@ -55,7 +52,7 @@ def main():
     parser.add_argument(
         "--ne",
         type=int,
-        default=2,
+        default=3,
         help="number of experiments to play for each model",
     )
     parser.add_argument(

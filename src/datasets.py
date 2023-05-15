@@ -46,10 +46,10 @@ class Dataset:
 
         return train_x, train_y, test_x, test_y
 
-    def plot_data(self):
+    def plot_data(self, save=False):
         if self.dim == 2:
             return scatterplot(
-                x_coords=self.X[:, 0], y_coords=self.X[:, 1], color=self.y, save=True
+                x_coords=self.X[:, 0], y_coords=self.X[:, 1], color=self.y, save=save
             )
         if self.dim == 3:
             return scatterplot(
@@ -58,19 +58,30 @@ class Dataset:
                 z_coords=self.X[:, 2],
                 dim=3,
                 color=self.y,
-                save=True,
+                save=save,
             )
 
 
 class Circles(Dataset):
-    def __init__(self, n_samples=2000, n_circles_per_class=1):
+    def __init__(self, n_samples=2000, n_circles_per_class=4):
         self.n_samples = n_samples
         self.n_circles_per_class = n_circles_per_class
         super().__init__(*self.__generate_data(), name="circles")
 
     def __generate_data(self):
-        data = datasets.make_circles(n_samples=self.n_samples)
-        return data[0], data[1]
+        margin = 3
+        circles_in_a_row = int(np.sqrt(self.n_circles_per_class))
+        data_x, data_y = datasets.make_circles(n_samples=self.n_samples)
+        for i in range(1, self.n_circles_per_class):
+            new_data_x, new_data_y = datasets.make_circles(n_samples=self.n_samples)
+            margin_0, margin_1 = i // circles_in_a_row, i % circles_in_a_row
+            new_data_x[:, 0], new_data_x[:, 1] = (
+                new_data_x[:, 0] + margin * margin_0,
+                new_data_x[:, 1] + margin * margin_1,
+            )
+            data_x = np.vstack([data_x, new_data_x])
+            data_y = np.hstack([data_y, new_data_y])
+        return data_x, data_y
 
 
 class Tori(Dataset):
@@ -220,10 +231,86 @@ class Tori(Dataset):
         return X, y
 
 
+class Disks(Dataset):
+    def __init__(
+        self, random=False, grid_min=-9, grid_max=9, res=0.19, big_r=7, small_r=2.1, n=9
+    ):
+        self.grid_min = grid_min
+        self.grid_max = grid_max
+        self.res = res
+        self.random = random
+        self.big_r = big_r
+        self.small_r = small_r
+        self.n = n
+        super().__init__(*self.__generate_data(), name="disks")
+
+    def __gen_grid(
+        self,
+        centers=[(0, 0), (8, 8)],
+        radius=0.5,
+        margin=0.5,
+    ):
+        x = np.arange(self.grid_min, self.grid_max, self.res)
+        y = np.arange(self.grid_min, self.grid_max, self.res)
+        xx, yy = np.meshgrid(x, y)
+        if self.random:
+            xx = xx + np.random.randn(xx.shape[0], xx.shape[1]) * 0.02
+            yy = yy + np.random.randn(yy.shape[0], yy.shape[1]) * 0.02
+        grid = np.dstack((xx, yy)).reshape(-1, 2)
+
+        y = np.ones(shape=(len(grid), 2)) * 1
+
+        for center in centers:
+            for i, point in enumerate(grid):
+                if np.linalg.norm(center - point) < radius + margin:
+                    y[i, 0] = 3
+                    y[i, 1] = 3
+
+                if np.linalg.norm(center - point) < radius:
+                    y[i, 0] = 0 * y[i, 0]
+                    y[i, 1] = not y[i, 0]
+
+            y = np.array(y)
+
+            mask = y == 3
+            label = y[:, 0]
+            label = np.delete(label, np.where(mask[:, 0]))
+            xx = list(grid[:, 0])
+            yy = list(grid[:, 1])
+
+            xx = np.delete(xx, np.where(mask[:, 0]))
+            yy = np.delete(yy, np.where(mask[:, 0]))
+            grid = np.ones(shape=(len(xx), 2))
+
+            grid[:, 0] = xx
+            grid[:, 1] = yy
+
+            y = np.ones(shape=(len(xx), 2))
+            y[:, 0] = label
+            y[:, 1] = 1 - label
+
+        return (grid, y[:, 0])
+
+    def __generate_data(self):
+        centers = [
+            (
+                np.cos(2 * np.pi / (self.n - 1) * x) * self.big_r,
+                np.sin(2 * np.pi / (self.n - 1) * x) * self.big_r,
+            )
+            for x in range(0, self.n)
+        ] + [0, 0]
+        X, y = self.__gen_grid(
+            centers=centers,
+            radius=self.small_r,
+        )
+
+        return X, y
+
+
 def main():
-    tori = Tori()
-    print(tori.name, tori.size, tori.dim)
-    tori.plot_data()
+    disk = Disks()
+    print(disk.name, disk.size, disk.y[disk.y == 0].shape, disk.y[disk.y == 1].shape)
+    disk.plot_data(save=True)
 
 
 if __name__ == "__main__":
