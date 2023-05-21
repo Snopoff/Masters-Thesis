@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from persim import plot_diagrams
 
 
 def scatterplot(
@@ -64,6 +65,10 @@ def plot_lines(
     fig.suptitle(fig_title)
     if save:
         fig.savefig(filename)
+
+
+def plot_dgm(dgm):
+    return plot_diagrams(dgm)
 
 
 def main():

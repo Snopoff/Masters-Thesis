@@ -81,9 +81,9 @@ class Classifier1L(nn.Module):
         super().__init__()
 
         self.activations = {
-            "split_tanh": split_tanh(),
-            "split_sign": split_sign(),
-            "split_sincos": split_sincos(),
+            "split_tanh": torch.jit.script(split_tanh()),
+            "split_sign": torch.jit.script(split_sign()),
+            "split_sincos": torch.jit.script(split_sincos()),
             "relu": F.relu,
         }
 

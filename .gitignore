@@ -154,3 +154,22 @@ cython_debug/
 
 .vscode/
 images/
+
+# Tex
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.gz
+*.vscode
+*.swp
+*.bbl
+*.toc
+*.blg
+*.bst
+*.bib
+include/
+
+# data
+*.csv
