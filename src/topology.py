@@ -42,14 +42,19 @@ def topo_simplification(ts, distance_to_diagonal=1, plot_diagram=False):
         dist_matrix, maxdim=0, subsample_size=None, distance_matrix=True
     )
     dgm0 = homology["dgms"][0]
-    points_to_return = dgm0[:, 1] - dgm0[:, 0] > distance_to_diagonal
+    points_to_return = dgm0[:, 1] - dgm0[:, 0] >= distance_to_diagonal
     dgm0_ret = dgm0[points_to_return, :]
 
     if plot_diagram:
         plot_diagrams([dgm0, dgm0_ret], labels=["$H_0$", "Simplified $H_0$"])
 
-    ts_to_return = [
-        int(np.where(np.isclose(x, point))[0][0]) for point in dgm0_ret.reshape(-1)[:-1]
-    ] + [ts.shape[0] - 1]
-    ts_to_return = ts[ts_to_return].sort_index()
+    ts_to_return = (
+        [
+            int(np.where(np.isclose(x, point))[0][0])
+            for point in dgm0_ret.reshape(-1)[:-1]
+        ]
+        + [ts.shape[0] - 1]
+        + [0]
+    )
+    ts_to_return = ts[ts_to_return].sort_index().drop_duplicates()
     return ts_to_return
