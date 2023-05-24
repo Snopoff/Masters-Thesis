@@ -63,21 +63,23 @@ class Dataset:
 
 
 class Circles(Dataset):
-    def __init__(self, n_samples=2000, n_circles_per_class=4):
+    def __init__(self, n_samples=2000, n_circles_per_class=4, margin=3, noise=0.15):
         self.n_samples = n_samples
         self.n_circles_per_class = n_circles_per_class
-        super().__init__(*self.__generate_data(), name="circles")
+        super().__init__(*self.__generate_data(margin, noise), name="circles")
 
-    def __generate_data(self):
-        margin = 3
+    def __generate_data(self, margin, noise):
         circles_in_a_row = int(np.sqrt(self.n_circles_per_class))
         data_x, data_y = datasets.make_circles(n_samples=self.n_samples)
         for i in range(1, self.n_circles_per_class):
             new_data_x, new_data_y = datasets.make_circles(n_samples=self.n_samples)
-            margin_0, margin_1 = i // circles_in_a_row, i % circles_in_a_row
+            margin_0, margin_1 = (
+                i // circles_in_a_row + noise,
+                i % circles_in_a_row + noise,
+            )
             new_data_x[:, 0], new_data_x[:, 1] = (
-                new_data_x[:, 0] + margin * margin_0,
-                new_data_x[:, 1] + margin * margin_1,
+                new_data_x[:, 0] + margin * margin_0,  # + np.random.normal(0, noise),
+                new_data_x[:, 1] + margin * margin_1,  # + np.random.normal(0, noise),
             )
             data_x = np.vstack([data_x, new_data_x])
             data_y = np.hstack([data_y, new_data_y])
