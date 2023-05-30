@@ -70,7 +70,7 @@ def main():
         model=MODELS_DICT[args.m],
         datasets=datasets,
         n_experiments=args.ne,
-        num_of_hidden_layers=range(1, args.l + 1),
+        num_of_hidden_layers=range(3, args.l + 2, 2),
         dim_of_hidden_layers=range(3, args.d + 3),
         list_of_activations=args.act,
         verbose=False,
