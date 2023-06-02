@@ -25,12 +25,12 @@ def main():
         choices=["activation"],
     )
     parser.add_argument(
-        "--l", type=int, default=1, help="num of layers to be used in a model"
+        "--l", type=int, default=10, help="num of layers to be used in a model"
     )
     parser.add_argument(
         "--d",
         type=int,
-        default=4,
+        default=8,
         help="dimension of hidden layers to be used in a model",
     )
     parser.add_argument(
@@ -52,7 +52,7 @@ def main():
     parser.add_argument(
         "--ne",
         type=int,
-        default=3,
+        default=30,
         help="number of experiments to play for each model",
     )
     parser.add_argument(
