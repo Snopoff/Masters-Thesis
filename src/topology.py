@@ -4,12 +4,12 @@ import numpy as np
 import scipy.sparse as ss
 
 
-def compute_homology(data, maxdim=2, subsample_size=1000, **kwargs):
+def compute_homology(data, maxdim=2, subsample_size=None, **kwargs):
     return ripser(data, maxdim=maxdim, n_perm=subsample_size, **kwargs)
 
 
 def topological_complexity(
-    X, labels=None, maxdim=1, subsample_size=1000, drop_zeroth=True
+    X, labels=None, maxdim=1, subsample_size=None, drop_zeroth=True
 ):
     if labels != None:
         label_vals = np.unique(labels)

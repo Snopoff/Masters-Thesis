@@ -81,9 +81,10 @@ def lineplot(
     for i, y_range in enumerate(y_ranges):
         plt.plot(x_range, y_range, "D-", label=labels[i])
         plt.fill_between(x_range, y_range - stds[i], y_range + stds[i], alpha=0.1)
-    plt.xlabel = xlabel
-    plt.ylabel = ylabel
-    plt.title = title
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend(loc="best")
     if save:
         plt.savefig(filename)
 

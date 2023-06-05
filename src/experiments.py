@@ -263,7 +263,7 @@ class TopologyChangeExperiments:
             for activation in self.list_of_activations:
                 print("Working with activation {}".format(activation))
                 topo_changes = np.zeros(
-                    (self.n_experiments, self.model_config["num_of_hidden"] + 1)
+                    (self.n_experiments, self.model_config["num_of_hidden"] + 2)
                 )
                 for i in range(self.n_experiments):
                     model = self.model(
@@ -279,8 +279,8 @@ class TopologyChangeExperiments:
                         test_ratio=self.test_ratio,
                         return_topo_changes=True,
                     )
-                mean_topo_change = np.mean(topo_changes, axis=1)
-                std_topo_change = np.mean(topo_changes, axis=1)
+                mean_topo_change = np.mean(topo_changes, axis=0)
+                std_topo_change = np.mean(topo_changes, axis=0)
                 results[dataset][activation] = (mean_topo_change, std_topo_change)
                 print("Mean topology changes = {}".format(mean_topo_change))
 
@@ -314,7 +314,8 @@ def main_topo_changes():
         model=ClassifierAL,
         datasets=datasets,
         n_experiments=2,
-        list_of_activations=["relu"],
+        list_of_activations=["relu", "split_tanh", "split_sincos"],
+        model_config={"num_of_hidden": 3, "dim_of_hidden": 5},
     )
     start_time = time.time()
     experiment.run_experiments()
