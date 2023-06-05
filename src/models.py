@@ -1,7 +1,9 @@
 import torch
+import numpy as np
 from torch import nn
 import torch.nn.functional as F
-from .plottings import plot_line
+from plottings import plot_line
+from topology import topological_complexity
 
 
 class split_tanh(nn.Module):
@@ -140,7 +142,6 @@ class ClassifierAL(nn.Module):
         activation="split_tanh",
         batch_norm=False,
         initialize_weights=True,
-        save_snapshots=True,
     ):
         """
         layers_signature = (dim_of_in, num_of_hidden, dim_of_hidden, is_with_split, split_constant)
@@ -148,9 +149,9 @@ class ClassifierAL(nn.Module):
         super().__init__()
 
         self.activations = {
-            "split_tanh": split_tanh(),
-            "split_sign": split_sign(),
-            "split_sincos": split_sincos(),
+            "split_tanh": torch.jit.script(split_tanh()),
+            "split_sign": torch.jit.script(split_sign()),
+            "split_sincos": torch.jit.script(split_sincos()),
             "relu": F.relu,
         }
 
@@ -163,26 +164,27 @@ class ClassifierAL(nn.Module):
 
         self.activation_name = activation
         self.activation = self.activations[self.activation_name]
+        self.topo_info = np.zeros(num_of_hidden + 1)
 
         if initialize_weights:
             self.apply(self.__initialize_weights)
-
-        if save_snapshots:
-            self.snapshots = []
 
     def forward(self, x, save=False):
         x = self.fc_in(x)
         if self.norm:
             x = self.norm(x)
         x = self.activation(x)
+        if save:
+            self.topo_info[0] = topological_complexity(x.cpu().detach().numpy())
 
-        for l in self.hiddens[:-1]:
+        for i, l in enumerate(self.hiddens[:-1]):
             x = self.activation(l(x))
+            if save:
+                self.topo_info[i] = topological_complexity(x.cpu().detach().numpy())
 
         x = F.relu(self.hiddens[-1](x))
-
         if save:
-            self.snapshots.append(x.cpu().detach().numpy())
+            self.topo_info[-1] = topological_complexity(x.cpu().detach().numpy())
 
         x = self.fc_out(x)
 

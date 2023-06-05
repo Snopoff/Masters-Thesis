@@ -8,15 +8,25 @@ def compute_homology(data, maxdim=2, subsample_size=1000, **kwargs):
     return ripser(data, maxdim=maxdim, n_perm=subsample_size, **kwargs)
 
 
-def topological_complexity(dataset, maxdim=1, subsample_size=1000):
-    X, labels = dataset.X, dataset.y
-    label_vals = np.unique(labels)
-    b_numbers = np.zeros_like(label_vals)
-    for i, label in enumerate(label_vals):
-        label_mask = labels == label
-        X_label = X[label_mask, :]
-        res = compute_homology(X_label, maxdim, subsample_size)["dgms"][1:]
-        b_numbers[i] = sum([hom.shape[0] for hom in res])
+def topological_complexity(
+    X, labels=None, maxdim=1, subsample_size=1000, drop_zeroth=True
+):
+    if labels != None:
+        label_vals = np.unique(labels)
+        b_numbers = np.zeros_like(label_vals)
+        for i, label in enumerate(label_vals):
+            label_mask = labels == label
+            X_label = X[label_mask, :]
+            res = compute_homology(X_label, maxdim, subsample_size)["dgms"]
+            if drop_zeroth:
+                res = res[1:]
+            b_numbers[i] = sum([hom.shape[0] for hom in res])
+    else:
+        res = compute_homology(X, maxdim, subsample_size)["dgms"]
+        if drop_zeroth:
+            res = res[1:]
+        b_numbers = sum([hom.shape[0] for hom in res])
+
     return b_numbers
 
 

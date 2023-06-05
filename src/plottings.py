@@ -67,6 +67,27 @@ def plot_lines(
         fig.savefig(filename)
 
 
+def lineplot(
+    x_range,
+    y_ranges,
+    stds=None,
+    title=None,
+    labels=None,
+    xlabel=None,
+    ylabel=None,
+    save=True,
+    filename=True,
+):
+    for i, y_range in enumerate(y_ranges):
+        plt.plot(x_range, y_range, "D-", label=labels[i])
+        plt.fill_between(x_range, y_range - stds[i], y_range + stds[i], alpha=0.1)
+    plt.xlabel = xlabel
+    plt.ylabel = ylabel
+    plt.title = title
+    if save:
+        plt.savefig(filename)
+
+
 def plot_dgm(dgm):
     return plot_diagrams(dgm)
 

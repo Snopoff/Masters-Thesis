@@ -1,8 +1,8 @@
-from .datasets import Dataset, Circles, Tori, Disks
-from .models import ClassifierAL
-from .train import train_eval_loop
-from .plottings import plot_lines
-from .utils import mkdir_p
+from datasets import Dataset, Circles, Tori, Disks
+from models import ClassifierAL
+from train import train_eval_loop
+from plottings import plot_lines, lineplot
+from utils import mkdir_p
 from typing import List
 import numpy as np
 import random
@@ -203,7 +203,94 @@ class ActivationExperiments:
         )
 
 
-if __name__ == "__main__":
+class TopologyChangeExperiments:
+    """
+    We firstly train a model (via train_eval_loop),
+    then we pick val data and run it through the model again,
+    but now we track the topology changes
+    """
+
+    def __init__(
+        self,
+        model,
+        datasets: List,
+        model_config={"num_of_hidden": 1, "dim_of_hidden": 3},
+        n_experiments=30,
+        list_of_activations=[
+            "split_tanh",
+            "split_sign",
+            "split_sincos",
+            "relu",
+        ],
+        test_ratio=0.2,
+        epochs=5000,
+    ) -> None:
+        self.model = model
+        self.datasets = datasets
+        self.model_config = model_config
+        self.n_experiments = n_experiments
+        self.list_of_activations = list_of_activations
+        self.test_ratio = test_ratio
+        self.epochs = epochs
+
+    def plot_results(self, results):
+        plot_dir = DIRNAME + "TopoChanges/"
+        mkdir_p(plot_dir)
+        for dataset, info in results.items():
+            title = dataset.name
+            plot_path = plot_dir + title
+            labels = list(info.keys())
+            values = list(info.values())
+            x_range = range(1, values[0][0].shape[0] + 1)
+            y_ranges, stds = list(zip(*values))
+            lineplot(
+                x_range,
+                y_ranges,
+                stds,
+                title,
+                labels,
+                xlabel="layers",
+                ylabel="TC",
+                filename=plot_path,
+            )
+
+    def run_experiments(self, verbose=False, plot_results=True):
+        results = {}
+        for dataset in self.datasets:
+            results[dataset] = {}
+            if verbose:
+                print("Working with dataset {}".format(dataset))
+            for activation in self.list_of_activations:
+                print("Working with activation {}".format(activation))
+                topo_changes = np.zeros(
+                    (self.n_experiments, self.model_config["num_of_hidden"] + 1)
+                )
+                for i in range(self.n_experiments):
+                    model = self.model(
+                        dim_of_in=dataset.dim,
+                        num_of_hidden=self.model_config["num_of_hidden"],
+                        dim_of_hidden=self.model_config["dim_of_hidden"],
+                        activation=activation,
+                    )
+                    topo_changes[i] = train_eval_loop(
+                        model,
+                        dataset,
+                        epochs=self.epochs,
+                        test_ratio=self.test_ratio,
+                        return_topo_changes=True,
+                    )
+                mean_topo_change = np.mean(topo_changes, axis=1)
+                std_topo_change = np.mean(topo_changes, axis=1)
+                results[dataset][activation] = (mean_topo_change, std_topo_change)
+                print("Mean topology changes = {}".format(mean_topo_change))
+
+        if plot_results:
+            self.plot_results(results)
+
+        return results
+
+
+def main_activations():
     circles, tori, disks = Circles(), Tori(), Disks()
     datasets = [circles, tori, disks]
     experiment = ActivationExperiments(
@@ -219,3 +306,21 @@ if __name__ == "__main__":
     experiment.run_experiments()
     end_time = time.time()
     print("Time spent = {:.2f} min".format((end_time - start_time) / 60))
+
+
+def main_topo_changes():
+    datasets = [Circles()]
+    experiment = TopologyChangeExperiments(
+        model=ClassifierAL,
+        datasets=datasets,
+        n_experiments=2,
+        list_of_activations=["relu"],
+    )
+    start_time = time.time()
+    experiment.run_experiments()
+    end_time = time.time()
+    print("Time spent = {:.2f} min".format((end_time - start_time) / 60))
+
+
+if __name__ == "__main__":
+    main_topo_changes()

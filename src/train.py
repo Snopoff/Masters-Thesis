@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch import optim
-from .datasets import Dataset
+from datasets import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -37,6 +37,7 @@ def train_eval_loop(
     save_max=10,
     return_losses=False,
     return_loss_plot=False,
+    return_topo_changes=False,
 ):
     model.to(DEVICE)
     train_x, train_y, test_x, test_y = data.train_test_split(
@@ -87,3 +88,7 @@ def train_eval_loop(
         plt.legend(loc="best")
         plt.xlabel("epochs")
         return fig
+
+    if return_topo_changes:
+        _ = model(test_x, save=True)
+        return model.topo_info
