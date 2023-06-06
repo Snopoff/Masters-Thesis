@@ -164,29 +164,37 @@ class ClassifierAL(nn.Module):
 
         self.activation_name = activation
         self.activation = self.activations[self.activation_name]
-        self.topo_info = np.zeros(num_of_hidden + 2)
+        self.topo_info = [None] * (num_of_hidden + 2)
 
         if initialize_weights:
             self.apply(self.__initialize_weights)
 
-    def forward(self, x, save=False):
+    def forward(self, x, save=False, **kwargs):
         if save:
-            self.topo_info[0] = topological_complexity(x.cpu().detach().numpy())
+            self.topo_info[0] = topological_complexity(
+                x.cpu().detach().numpy(), **kwargs
+            )
         x = self.fc_in(x)
         if self.norm:
             x = self.norm(x)
         x = self.activation(x)
         if save:
-            self.topo_info[1] = topological_complexity(x.cpu().detach().numpy())
+            self.topo_info[1] = topological_complexity(
+                x.cpu().detach().numpy(), **kwargs
+            )
 
         for i, l in enumerate(self.hiddens[:-1]):
             x = self.activation(l(x))
             if save:
-                self.topo_info[i + 2] = topological_complexity(x.cpu().detach().numpy())
+                self.topo_info[i + 2] = topological_complexity(
+                    x.cpu().detach().numpy(), **kwargs
+                )
 
         x = F.relu(self.hiddens[-1](x))
         if save:
-            self.topo_info[-1] = topological_complexity(x.cpu().detach().numpy())
+            self.topo_info[-1] = topological_complexity(
+                x.cpu().detach().numpy(), **kwargs
+            )
 
         x = self.fc_out(x)
 

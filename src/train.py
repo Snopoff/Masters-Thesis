@@ -90,5 +90,8 @@ def train_eval_loop(
         return fig
 
     if return_topo_changes:
-        _ = model(test_x, save=True)
+        with torch.no_grad():
+            model.eval()
+            _ = model(test_x, save=True)
+        print(model.topo_info)
         return model.topo_info

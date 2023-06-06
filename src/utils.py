@@ -19,6 +19,9 @@ def mkdir_p(mypath):
 
 
 def obtain_points_for_each_label(X, labels):
+    """
+    Given a dataset X with the labels, splits data by them
+    """
     res = dict()
     label_vals = np.unique(labels)
     for label in label_vals:

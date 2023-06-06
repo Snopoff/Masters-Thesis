@@ -254,7 +254,7 @@ class TopologyChangeExperiments:
                 filename=plot_path,
             )
 
-    def run_experiments(self, verbose=False, plot_results=True):
+    def run_experiments(self, verbose=False, plot_results=True, homology_of_label=-1):
         results = {}
         for dataset in self.datasets:
             results[dataset] = {}
@@ -272,13 +272,14 @@ class TopologyChangeExperiments:
                         dim_of_hidden=self.model_config["dim_of_hidden"],
                         activation=activation,
                     )
-                    topo_changes[i] = train_eval_loop(
+                    res = train_eval_loop(
                         model,
                         dataset,
                         epochs=self.epochs,
                         test_ratio=self.test_ratio,
                         return_topo_changes=True,
                     )
+                    topo_changes[i] = [d[homology_of_label] for d in res]
                 mean_topo_change = np.mean(topo_changes, axis=0)
                 std_topo_change = np.mean(topo_changes, axis=0)
                 results[dataset][activation] = (mean_topo_change, std_topo_change)

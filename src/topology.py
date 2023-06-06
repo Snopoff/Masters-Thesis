@@ -17,19 +17,28 @@ def topological_complexity(
     if labels is not None:
         data = obtain_points_for_each_label(X, labels)
     else:
-        data = dict()
-        data[-1] = X
+        data = {-1: X}
     b_numbers = dict()
-    print(data)
     for label, X in data.items():
         res = compute_homology(X, maxdim, subsample_size)["dgms"]
         if drop_zeroth:
             res = res[1:]
         if scale is not None:
-            res_at_scale = [
-                gen for hom in res for gen in hom if gen[0] <= scale and scale < gen[1]
-            ]
-            b_numbers[label] = len(res_at_scale)
+            if isinstance(scale, int):
+                res_at_scale = [
+                    gen
+                    for hom in res
+                    for gen in hom
+                    if gen[0] <= scale and scale < gen[1]
+                ]
+                b_numbers[label] = len(res_at_scale)
+            if isinstance(scale, list):
+                b_numbers[label] = dict()
+                for s in scale:
+                    res_at_scale = [
+                        gen for hom in res for gen in hom if gen[0] <= s and s < gen[1]
+                    ]
+                    b_numbers[label][s] = len(res_at_scale)
         else:
             b_numbers[label] = sum([hom.shape[0] for hom in res])
     return b_numbers
@@ -77,7 +86,7 @@ def topo_simplification(ts, distance_to_diagonal=1, plot_diagram=False):
 
 def main():
     circle = Circles()
-    scale = 1.3
+    scale = [0.5, 1, 1.5]
     res = topological_complexity(circle.X, labels=circle.y, scale=scale)
     print(res)
 
