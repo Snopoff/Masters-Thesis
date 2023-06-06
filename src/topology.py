@@ -35,32 +35,6 @@ def topological_complexity(
     return b_numbers
 
 
-"""    if labels != None and scale == None:
-        label_vals = np.unique(labels)
-        b_numbers = np.zeros_like(label_vals)
-        for i, label in enumerate(label_vals):
-            label_mask = labels == label
-            X_label = X[label_mask, :]
-            res = compute_homology(X_label, maxdim, subsample_size)["dgms"]
-            if drop_zeroth:
-                res = res[1:]
-            b_numbers[i] = sum([hom.shape[0] for hom in res])
-    elif scale != None and labels == None:
-        res = compute_homology(X, maxdim, subsample_size)["dgms"]
-        if drop_zeroth:
-            res = res[1:]
-        for hom in res:
-            for gen in hom:
-                print(gen, gen[0] <= scale and scale < gen[1])
-        res_at_scale = [
-            gen for hom in res for gen in hom if gen[0] <= scale and scale < gen[1]
-        ]
-        print("At scale are", res_at_scale)
-        b_numbers = len(res_at_scale)  # sum([hom.shape[0] for hom in res_at_scale])
-
-    return b_numbers"""
-
-
 def create_sublevelset_filtration(x):
     N = x.shape[0]
     I = np.arange(N - 1)
