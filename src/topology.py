@@ -2,16 +2,40 @@ from ripser import ripser
 from persim import plot_diagrams
 import numpy as np
 import scipy.sparse as ss
+from datasets import Circles
+from plottings import plot_dgm
+from utils import obtain_points_for_each_label
 
 
-def compute_homology(data, maxdim=2, subsample_size=None, **kwargs):
+def compute_homology(data, maxdim=2, subsample_size=1000, **kwargs):
     return ripser(data, maxdim=maxdim, n_perm=subsample_size, **kwargs)
 
 
 def topological_complexity(
-    X, labels=None, maxdim=1, subsample_size=None, drop_zeroth=True
+    X, labels=None, maxdim=1, subsample_size=1000, drop_zeroth=True, scale=None
 ):
-    if labels != None:
+    if labels is not None:
+        data = obtain_points_for_each_label(X, labels)
+    else:
+        data = dict()
+        data[-1] = X
+    b_numbers = dict()
+    print(data)
+    for label, X in data.items():
+        res = compute_homology(X, maxdim, subsample_size)["dgms"]
+        if drop_zeroth:
+            res = res[1:]
+        if scale is not None:
+            res_at_scale = [
+                gen for hom in res for gen in hom if gen[0] <= scale and scale < gen[1]
+            ]
+            b_numbers[label] = len(res_at_scale)
+        else:
+            b_numbers[label] = sum([hom.shape[0] for hom in res])
+    return b_numbers
+
+
+"""    if labels != None and scale == None:
         label_vals = np.unique(labels)
         b_numbers = np.zeros_like(label_vals)
         for i, label in enumerate(label_vals):
@@ -21,13 +45,20 @@ def topological_complexity(
             if drop_zeroth:
                 res = res[1:]
             b_numbers[i] = sum([hom.shape[0] for hom in res])
-    else:
+    elif scale != None and labels == None:
         res = compute_homology(X, maxdim, subsample_size)["dgms"]
         if drop_zeroth:
             res = res[1:]
-        b_numbers = sum([hom.shape[0] for hom in res])
+        for hom in res:
+            for gen in hom:
+                print(gen, gen[0] <= scale and scale < gen[1])
+        res_at_scale = [
+            gen for hom in res for gen in hom if gen[0] <= scale and scale < gen[1]
+        ]
+        print("At scale are", res_at_scale)
+        b_numbers = len(res_at_scale)  # sum([hom.shape[0] for hom in res_at_scale])
 
-    return b_numbers
+    return b_numbers"""
 
 
 def create_sublevelset_filtration(x):
@@ -68,3 +99,14 @@ def topo_simplification(ts, distance_to_diagonal=1, plot_diagram=False):
     )
     ts_to_return = ts[ts_to_return].sort_index().drop_duplicates()
     return ts_to_return
+
+
+def main():
+    circle = Circles()
+    scale = 1.3
+    res = topological_complexity(circle.X, labels=circle.y, scale=scale)
+    print(res)
+
+
+if __name__ == "__main__":
+    main()

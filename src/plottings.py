@@ -89,8 +89,8 @@ def lineplot(
         plt.savefig(filename)
 
 
-def plot_dgm(dgm):
-    return plot_diagrams(dgm)
+def plot_dgm(dgm, **kwargs):
+    return plot_diagrams(dgm, show=True, **kwargs)
 
 
 def main():

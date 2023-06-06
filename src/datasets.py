@@ -18,12 +18,13 @@ class Dataset:
     y: np.ndarray
     """
 
-    def __init__(self, X: np.ndarray, y: np.ndarray, name=""):
+    def __init__(self, X: np.ndarray, y: np.ndarray, name="", homology=None):
         self.X = X
         self.y = y
         self.name = name
         self.size = self.X.shape[0]
         self.dim = self.X.shape[1]
+        self.homology = homology
 
     def train_test_split(
         self, test_ratio=0.2, val=False, val_ratio=0.2, datatype="numpy", device=None
@@ -66,7 +67,13 @@ class Circles(Dataset):
     def __init__(self, n_samples=2000, n_circles_per_class=4, margin=3, noise=0.15):
         self.n_samples = n_samples
         self.n_circles_per_class = n_circles_per_class
-        super().__init__(*self.__generate_data(margin, noise), name="circles")
+        homology = {
+            0: [self.n_circles_per_class, self.n_circles_per_class],
+            1: [self.n_circles_per_class, self.n_circles_per_class],
+        }
+        super().__init__(
+            *self.__generate_data(margin, noise), name="circles", homology=homology
+        )
 
     def __generate_data(self, margin, noise):
         circles_in_a_row = int(np.sqrt(self.n_circles_per_class))
@@ -104,7 +111,8 @@ class Tori(Dataset):
         self.radius = radius
         self.visual = visual
         self.range = rng
-        super().__init__(*self.__generate_data(), name="tori")
+        homology = {0: [8, 8], 0: [8, 8]}
+        super().__init__(*self.__generate_data(), name="tori", homology=homology)
 
     def __draw_circle(self, r, center, n, rand=True):
         angles = np.linspace(start=0, stop=n, num=n) * (np.pi * 2) / n
@@ -244,7 +252,8 @@ class Disks(Dataset):
         self.big_r = big_r
         self.small_r = small_r
         self.n = n
-        super().__init__(*self.__generate_data(), name="disks")
+        homology = {0: [9, 0], 1: [1, 9]}
+        super().__init__(*self.__generate_data(), name="disks", homology=homology)
 
     def __gen_grid(
         self,
@@ -310,9 +319,9 @@ class Disks(Dataset):
 
 
 def main():
-    disk = Disks()
-    print(disk.name, disk.size, disk.y[disk.y == 0].shape, disk.y[disk.y == 1].shape)
-    disk.plot_data(save=True)
+    tori = Tori()
+    print(tori.name, tori.size, tori.y[tori.y == 0].shape, tori.y[tori.y == 1].shape)
+    tori.plot_data(save=True)
 
 
 if __name__ == "__main__":

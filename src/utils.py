@@ -1,5 +1,6 @@
 from errno import EEXIST
 from os import makedirs, path
+import numpy as np
 
 
 def mkdir_p(mypath):
@@ -15,3 +16,12 @@ def mkdir_p(mypath):
             pass
         else:
             raise
+
+
+def obtain_points_for_each_label(X, labels):
+    res = dict()
+    label_vals = np.unique(labels)
+    for label in label_vals:
+        label_mask = labels == label
+        res[label] = X[label_mask, :]
+    return res

@@ -234,7 +234,7 @@ class TopologyChangeExperiments:
         self.epochs = epochs
 
     def plot_results(self, results):
-        plot_dir = DIRNAME + "TopoChanges/"
+        plot_dir = DIRNAME + "topoChanges/"
         mkdir_p(plot_dir)
         for dataset, info in results.items():
             title = dataset.name
