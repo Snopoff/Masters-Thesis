@@ -1,17 +1,18 @@
 import torch
 from torch import nn
 from torch import optim
-from datasets import Dataset
+from .datasets import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# DEVICE = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
 
-def train(model, X, y, optimizer, criterion, save=False):
+def train(model, X, y, optimizer, criterion):
     model.train()
     optimizer.zero_grad()
-    logits = model(X, save)
+    logits = model(X)
     loss = criterion(logits, y)
     loss.backward()
     optimizer.step()
@@ -55,9 +56,7 @@ def train_eval_loop(
 
     for e in range(epochs):
         running_loss = 0
-        running_loss += train(
-            model, train_x, train_y, optimizer, criterion, save=e % save_each == 0
-        )
+        running_loss += train(model, train_x, train_y, optimizer, criterion)
 
         test_loss = 0
         accuracy = 0

@@ -1,8 +1,8 @@
-from datasets import Dataset, Circles, Tori, Disks
-from models import ClassifierAL
-from train import train_eval_loop
-from plottings import plot_lines, lineplot
-from utils import mkdir_p
+from .datasets import Dataset, Circles, Tori, Disks
+from .models import ClassifierAL
+from .train import train_eval_loop
+from .plottings import plot_lines, lineplot
+from .utils import mkdir_p
 from typing import List
 import numpy as np
 import random
@@ -155,6 +155,9 @@ class ActivationExperiments:
                     nrows=num_dims // 4,
                     figsize=(15, 10),
                 )
+
+    def save_results(self, results, generic_label, dirname):
+        pass
 
     def run_experiments(self):
         train_info, test_info = [], []

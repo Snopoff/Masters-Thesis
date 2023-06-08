@@ -2,8 +2,8 @@ import torch
 import numpy as np
 from torch import nn
 import torch.nn.functional as F
-from plottings import plot_line
-from topology import topological_complexity
+from .plottings import plot_line
+from .topology import topological_complexity
 
 
 class split_tanh(nn.Module):
@@ -115,7 +115,6 @@ class Classifier1L(nn.Module):
             x = F.relu(l(x))
 
         x = F.relu(self.hiddens[-1](x))
-
         if save:
             self.snapshots.append(x.cpu().detach().numpy())
 
@@ -169,32 +168,32 @@ class ClassifierAL(nn.Module):
         if initialize_weights:
             self.apply(self.__initialize_weights)
 
-    def forward(self, x, save=False, **kwargs):
-        if save:
-            self.topo_info[0] = topological_complexity(
-                x.cpu().detach().numpy(), **kwargs
-            )
+    def forward(self, x):
+        x = self.fc_in(x)
+        x = self.activation(x)
+        for _, l in enumerate(self.hiddens[:-1]):
+            x = self.activation(l(x))
+        x = F.relu(self.hiddens[-1](x))
+        x = self.fc_out(x)
+
+        return x
+
+    def forward_with_save(self, x, **kwargs):
+        self.topo_info[0] = topological_complexity(x.cpu().detach().numpy(), **kwargs)
         x = self.fc_in(x)
         if self.norm:
             x = self.norm(x)
         x = self.activation(x)
-        if save:
-            self.topo_info[1] = topological_complexity(
-                x.cpu().detach().numpy(), **kwargs
-            )
+        self.topo_info[1] = topological_complexity(x.cpu().detach().numpy(), **kwargs)
 
         for i, l in enumerate(self.hiddens[:-1]):
             x = self.activation(l(x))
-            if save:
-                self.topo_info[i + 2] = topological_complexity(
-                    x.cpu().detach().numpy(), **kwargs
-                )
-
-        x = F.relu(self.hiddens[-1](x))
-        if save:
-            self.topo_info[-1] = topological_complexity(
+            self.topo_info[i + 2] = topological_complexity(
                 x.cpu().detach().numpy(), **kwargs
             )
+
+        x = F.relu(self.hiddens[-1](x))
+        self.topo_info[-1] = topological_complexity(x.cpu().detach().numpy(), **kwargs)
 
         x = self.fc_out(x)
 

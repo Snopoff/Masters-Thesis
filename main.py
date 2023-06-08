@@ -25,7 +25,7 @@ def main():
         choices=["activation"],
     )
     parser.add_argument(
-        "--l", type=int, default=10, help="num of layers to be used in a model"
+        "--l", type=int, default=5, help="num of layers to be used in a model"
     )
     parser.add_argument(
         "--d",
@@ -45,7 +45,7 @@ def main():
         "--act",
         type=str,
         action="append",
-        default=["split_tanh", "split_sincos", "relu"],
+        default=["split_tanh", "relu"],
         choices=["split_tanh", "split_sign", "split_sincos", "relu"],
         help="activation functions names to be used in the experiment",
     )
@@ -70,8 +70,8 @@ def main():
         model=MODELS_DICT[args.m],
         datasets=datasets,
         n_experiments=args.ne,
-        num_of_hidden_layers=range(3, args.l + 2, 2),
-        dim_of_hidden_layers=range(3, args.d + 3),
+        num_of_hidden_layers=range(3, args.l + 3, 2),
+        dim_of_hidden_layers=range(3, args.d + 3, 2),
         list_of_activations=args.act,
         verbose=False,
     )

@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple
 from sklearn import datasets
-from plottings import scatterplot
+from .plottings import scatterplot
 from sklearn import preprocessing
 import torch
 
