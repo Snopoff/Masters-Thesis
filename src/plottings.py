@@ -78,6 +78,7 @@ def lineplot(
     save=True,
     filename=True,
 ):
+    plt.cla()
     for i, y_range in enumerate(y_ranges):
         plt.plot(x_range, y_range, "D-", label=labels[i])
         plt.fill_between(x_range, y_range - stds[i], y_range + stds[i], alpha=0.1)

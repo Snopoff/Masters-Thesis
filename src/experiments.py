@@ -227,6 +227,7 @@ class TopologyChangeExperiments:
         ],
         test_ratio=0.2,
         epochs=5000,
+        title_name=None,
     ) -> None:
         self.model = model
         self.datasets = datasets
@@ -235,16 +236,23 @@ class TopologyChangeExperiments:
         self.list_of_activations = list_of_activations
         self.test_ratio = test_ratio
         self.epochs = epochs
+        self.title_name = (
+            title_name
+            if title_name is not None
+            else "_n_{}_d_{}".format(
+                model_config["num_of_hidden"], model_config["dim_of_hidden"]
+            )
+        )
 
     def plot_results(self, results):
         plot_dir = DIRNAME + "topoChanges/"
         mkdir_p(plot_dir)
         for dataset, info in results.items():
-            title = dataset.name
+            title = dataset.name + self.title_name
             plot_path = plot_dir + title
             labels = list(info.keys())
             values = list(info.values())
-            x_range = range(1, values[0][0].shape[0] + 1)
+            x_range = range(values[0][0].shape[0])
             y_ranges, stds = list(zip(*values))
             lineplot(
                 x_range,

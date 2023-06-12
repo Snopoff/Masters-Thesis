@@ -89,8 +89,11 @@ def train_eval_loop(
         return fig
 
     if return_topo_changes:
+        device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+        model.to(device)
+        test_x = test_x.to(device)
         with torch.no_grad():
             model.eval()
-            _ = model(test_x, save=True)
+            _ = model.forward_with_save(test_x)
         print(model.topo_info)
         return model.topo_info
