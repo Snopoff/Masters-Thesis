@@ -54,14 +54,14 @@ class split_sincos(nn.Module):
 
         res = torch.zeros_like(x)
 
-        idx1 = x < -cosa
+        idx1 = x <= -cosa
         res[idx1] = self.b * x[idx1] + self.b * cosa - sina
 
-        idx2 = (-cosa <= x) & (x < cosa)
-        res[idx2] = x[idx2] + sina - cosa
+        idx2 = (-cosa < x) & (x < cosa)
+        res[idx2] = x[idx2] * tga
 
         idx3 = x >= cosa
-        res[idx3] = x[idx3] * tga
+        res[idx3] = x[idx3] + sina - cosa
 
         return res
 
