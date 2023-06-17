@@ -175,6 +175,7 @@ include/
 *.csv
 *.bcf
 *.xml
+*.json
 
 _*.*
 .*

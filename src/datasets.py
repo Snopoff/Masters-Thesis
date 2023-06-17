@@ -2,6 +2,7 @@ import numpy as np
 from typing import Tuple
 from sklearn import datasets
 from .plottings import scatterplot
+from .topology import compute_homology
 from sklearn import preprocessing
 import torch
 
@@ -18,13 +19,16 @@ class Dataset:
     y: np.ndarray
     """
 
-    def __init__(self, X: np.ndarray, y: np.ndarray, name="", homology=None):
+    def __init__(
+        self, X: np.ndarray, y: np.ndarray, name="", homology=None, scale=None
+    ):
         self.X = X
         self.y = y
         self.name = name
         self.size = self.X.shape[0]
         self.dim = self.X.shape[1]
         self.homology = homology
+        self.scale = scale if scale is not None else self.__find_scale()
 
     def train_test_split(
         self, test_ratio=0.2, val=False, val_ratio=0.2, datatype="numpy", device=None
@@ -61,6 +65,29 @@ class Dataset:
                 color=self.y,
                 save=save,
             )
+
+    def __find_scale(self):
+        data = self.X[self.y == 0]
+        homology = compute_homology(data, maxdim=1)["dgms"][1:]
+        best_scale = 0
+        best_error = np.infty
+        scale_range = np.linspace(
+            min([pair[0] for pair in homology[0]]),
+            max([pair[1] for pair in homology[0]]),
+            20,
+        )
+        for scale in scale_range:
+            res_at_scale = [
+                gen
+                for hom in homology
+                for gen in hom
+                if gen[0] <= scale and scale < gen[1]
+            ]
+            b = len(res_at_scale)
+            if np.abs(b - self.homology[1][1]) < best_error:
+                best_scale = scale
+
+        return best_scale
 
 
 class Circles(Dataset):
@@ -111,7 +138,7 @@ class Tori(Dataset):
         self.radius = radius
         self.visual = visual
         self.range = rng
-        homology = {0: [8, 8], 0: [8, 8]}
+        homology = {0: [8, 8], 1: [8, 8]}
         super().__init__(*self.__generate_data(), name="tori", homology=homology)
 
     def __draw_circle(self, r, center, n, rand=True):
@@ -320,7 +347,13 @@ class Disks(Dataset):
 
 def main():
     tori = Tori()
-    print(tori.name, tori.size, tori.y[tori.y == 0].shape, tori.y[tori.y == 1].shape)
+    print(
+        tori.name,
+        tori.size,
+        tori.y[tori.y == 0].shape,
+        tori.y[tori.y == 1].shape,
+        tori.scale,
+    )
     tori.plot_data(save=True)
 
 

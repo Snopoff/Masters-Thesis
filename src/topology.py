@@ -2,7 +2,8 @@ from ripser import ripser
 from persim import plot_diagrams
 import numpy as np
 import scipy.sparse as ss
-from .datasets import Circles
+
+# from .datasets import Circles
 from .plottings import plot_dgm
 from .utils import obtain_points_for_each_label
 

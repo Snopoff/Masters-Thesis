@@ -74,7 +74,7 @@ def main():
     parser.add_argument(
         "--ne",
         type=int,
-        default=1,
+        default=30,
         help="number of experiments to play for each model",
     )
     parser.add_argument(
